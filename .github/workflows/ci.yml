@@ -9,12 +9,87 @@ jobs:
   rust:
     name: Rust checks
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt, clippy
-      - run: cargo fmt --all -- --check
-      - run: cargo check --workspace
-      - run: cargo clippy --workspace --all-targets -- -D warnings
-      - run: cargo test --workspace
+
+      - name: Cache Cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: Verify lockfile
+        run: cargo check --workspace --locked
+
+      - name: Format
+        run: cargo fmt --all -- --check
+
+      - name: Check
+        run: cargo check --workspace --locked
+
+      - name: Clippy
+        run: cargo clippy --workspace --all-targets --locked -- -D warnings
+
+      - name: Test
+        run: cargo test --workspace --locked
+[1mdiff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml[m
+[1mindex 6111939..ec900ea 100644[m
+[1m--- a/.github/workflows/ci.yml[m
+[1m+++ b/.github/workflows/ci.yml[m
+[36m@@ -9,12 +9,38 @@[m [mjobs:[m
+   rust:[m
+     name: Rust checks[m
+     runs-on: ubuntu-latest[m
+[32m+[m
+     steps:[m
+[31m-      - uses: actions/checkout@v4[m
+[31m-      - uses: dtolnay/rust-toolchain@stable[m
+[32m+[m[32m      - name: Checkout[m
+[32m+[m[32m        uses: actions/checkout@v4[m
+[32m+[m
+[32m+[m[32m      - name: Install Rust[m
+[32m+[m[32m        uses: dtolnay/rust-toolchain@stable[m
+         with:[m
+           components: rustfmt, clippy[m
+[31m-      - run: cargo fmt --all -- --check[m
+[31m-      - run: cargo check --workspace[m
+[31m-      - run: cargo clippy --workspace --all-targets -- -D warnings[m
+[31m-      - run: cargo test --workspace[m
+[32m+[m
+[32m+[m[32m      - name: Cache Cargo[m
+[32m+[m[32m        uses: actions/cache@v4[m
+[32m+[m[32m        with:[m
+[32m+[m[32m          path: |[m
+[32m+[m[32m            ~/.cargo/registry[m
+[32m+[m[32m            ~/.cargo/git[m
+[32m+[m[32m            target[m
+[32m+[m[32m          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}[m
+[32m+[m[32m          restore-keys: |[m
+[32m+[m[32m            ${{ runner.os }}-cargo-[m
+[32m+[m
+[32m+[m[32m      - name: Verify lockfile[m
+[32m+[m[32m        run: cargo check --workspace --locked[m
+[32m+[m
+[32m+[m[32m      - name: Format[m
+[32m+[m[32m        run: cargo fmt --all -- --check[m
+[32m+[m
+[32m+[m[32m      - name: Check[m
+[32m+[m[32m        run: cargo check --workspace --locked[m
+[32m+[m
+[32m+[m[32m      - name: Clippy[m
+[32m+[m[32m        run: cargo clippy --workspace --all-targets --locked -- -D warnings[m
+[32m+[m
+[32m+[m[32m      - name: Test[m
+[32m+[m[32m        run: cargo test --workspace --locked[m
