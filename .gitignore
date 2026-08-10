@@ -1,0 +1,16 @@
+/target/
+Cargo.lock
+.env
+.env.*
+!.env.example
+.DS_Store
+*.swp
+.vscode/
+.idea/
+
+# Soroban build artifacts
+*.wasm
+
+# Local deployment data
+.deploy/
+.network/
